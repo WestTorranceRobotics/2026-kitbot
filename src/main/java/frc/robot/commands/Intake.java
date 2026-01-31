@@ -6,7 +6,8 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.CANFuelSubsystem;
+import frc.robot.subsystems.CANFuelSubsystem.CANFuelSubsystem;
+
 import static frc.robot.Constants.FuelConstants.*;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -25,8 +26,8 @@ public class Intake extends Command {
   @Override
   public void initialize() {
     fuelSubsystem
-        .setIntakeLauncherRoller(SmartDashboard.getNumber("Intaking intake roller value", INTAKING_INTAKE_VOLTAGE));
-    fuelSubsystem.setFeederRoller(SmartDashboard.getNumber("Intaking feeder roller value", INTAKING_FEEDER_VOLTAGE));
+        .setLauncherVoltage(SmartDashboard.getNumber("Intaking intake roller value", INTAKING_INTAKE_VOLTAGE));
+    fuelSubsystem.setFeederVoltage(SmartDashboard.getNumber("Intaking feeder roller value", INTAKING_FEEDER_VOLTAGE));
   }
 
   // Called every time the scheduler runs while the command is scheduled. This
@@ -38,8 +39,8 @@ public class Intake extends Command {
   // Called once the command ends or is interrupted. Stop the rollers
   @Override
   public void end(boolean interrupted) {
-    fuelSubsystem.setIntakeLauncherRoller(0);
-    fuelSubsystem.setFeederRoller(0);
+    fuelSubsystem.setLauncherVoltage(0);
+    fuelSubsystem.setFeederVoltage(0);
   }
 
   // Returns true when the command should end.
