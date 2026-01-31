@@ -23,7 +23,7 @@ import frc.robot.subsystems.CANFuelSubsystem.CommandLogitechController;
 public class RobotContainer {
   private final CANFuelSubsystemIO fuelSubsystem;
 
-  private final GenericHID controller = new GenericHID(
+  private final CommandLogitechController controller = new CommandLogitechController(
       DRIVER_CONTROLLER_PORT);
 
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -40,10 +40,10 @@ public class RobotContainer {
 
   private void configureBindings() {
     fuelSubsystem.setDefaultCommand(fuelSubsystem.runOnce(() -> {
-      fuelSubsystem.setLauncherVelocity(RotationsPerSecond.of(3000 / 60)); // 3000 RPM
-      fuelSubsystem.setFeederVoltage(controller.getRawAxis(1) * 0.7);
+      fuelSubsystem.setLauncherVelocity(RotationsPerSecond.of(controller.getLeftY() * 3000 / 60)); // 3000 RPM
+      fuelSubsystem.setFeederVoltage(controller.getRightY() * 0.7);
     }));
-    
+
   }
 
   public Command getAutonomousCommand() {
