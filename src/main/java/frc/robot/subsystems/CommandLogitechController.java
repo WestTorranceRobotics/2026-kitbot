@@ -1,4 +1,4 @@
-package frc.robot.subsystems.CANFuelSubsystem;
+package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.GenericHID;
 

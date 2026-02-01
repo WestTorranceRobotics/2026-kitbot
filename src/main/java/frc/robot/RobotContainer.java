@@ -15,14 +15,14 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static frc.robot.Constants.OperatorConstants.*;
 
-import frc.robot.subsystems.CANFuelSubsystem.CANFuelSubsystem;
-import frc.robot.subsystems.CANFuelSubsystem.CANFuelSubsystemIO;
-import frc.robot.subsystems.CANFuelSubsystem.CANFuelSubsystemSim;
-import frc.robot.subsystems.CANFuelSubsystem.CommandLogitechController;
+import frc.robot.subsystems.CommandLogitechController;
+import frc.robot.subsystems.FuelSubsystem.FuelSubsystemReal;
+import frc.robot.subsystems.FuelSubsystem.FuelSubsystemIO;
+import frc.robot.subsystems.FuelSubsystem.FuelSubsystemSim;
 
 @Logged
 public class RobotContainer {
-  private final CANFuelSubsystemIO fuelSubsystem;
+  private final FuelSubsystemIO fuelSubsystem;
 
   private final CommandLogitechController controller = new CommandLogitechController(
       DRIVER_CONTROLLER_PORT);
@@ -31,9 +31,9 @@ public class RobotContainer {
 
   public RobotContainer() {
     if (Robot.isReal()) {
-      fuelSubsystem = new CANFuelSubsystem();
+      fuelSubsystem = new FuelSubsystemReal();
     } else {
-      fuelSubsystem = new CANFuelSubsystemSim();
+      fuelSubsystem = new FuelSubsystemSim();
     }
 
     configureBindings();

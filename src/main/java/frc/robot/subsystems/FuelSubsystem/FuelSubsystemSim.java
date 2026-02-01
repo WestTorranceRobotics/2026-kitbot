@@ -1,4 +1,4 @@
-package frc.robot.subsystems.CANFuelSubsystem;
+package frc.robot.subsystems.FuelSubsystem;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 @Logged
-public class CANFuelSubsystemSim extends SubsystemBase implements CANFuelSubsystemIO {
+public class FuelSubsystemSim extends SubsystemBase implements FuelSubsystemIO {
     private SparkMax motor = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
     private SparkMaxSim launcherMotorSim;
     private SparkMaxConfig launcherConfig = new SparkMaxConfig();
@@ -46,7 +46,7 @@ public class CANFuelSubsystemSim extends SubsystemBase implements CANFuelSubsyst
     @Logged
     private double actualFlywheelRPM = 0;
 
-    public CANFuelSubsystemSim() {
+    public FuelSubsystemSim() {
         launcherMotorSim = new SparkMaxSim(motor, DCMotor.getNEO(1));
         launcherConfig.inverted(true);
         launcherConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);

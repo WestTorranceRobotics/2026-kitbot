@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.CANFuelSubsystem;
+package frc.robot.subsystems.FuelSubsystem;
 
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -23,33 +23,25 @@ import static frc.robot.Constants.FuelConstants.*;
 import static edu.wpi.first.units.Units.*;
 
 @Logged
-public class CANFuelSubsystem extends SubsystemBase implements CANFuelSubsystemIO {
-  private final SparkMax feederRoller;
-  private final SparkMax intakeLauncherRoller;
+public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO {
+  private final SparkMax feederMotor = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushless);
+  private final SparkMax launcherMotor = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
   private final BangBangController bangbang = new BangBangController();
   private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0, 0);
 
-  @Logged
-  double actualRPM = 0;
-
-  @Logged
-  double targetRPM = 0;
+  private double targetRPM = 0;
+  private double actualRPM = 0;
 
   /** Creates a new CANBallSubsystem. */
-  public CANFuelSubsystem() {
-    intakeLauncherRoller = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
-    feederRoller = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushless);
-
+  public FuelSubsystemReal() {
     SparkMaxConfig feederConfig = new SparkMaxConfig();
     feederConfig.smartCurrentLimit(FEEDER_MOTOR_CURRENT_LIMIT);
-    feederRoller.configure(feederConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    feederMotor.configure(feederConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     SparkMaxConfig launcherConfig = new SparkMaxConfig();
     launcherConfig.idleMode(IdleMode.kCoast);
     launcherConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);
-    intakeLauncherRoller.configure(launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    bangbang.setTolerance(100);
+    launcherMotor.configure(launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     SmartDashboard.putNumber("Intaking feeder roller value", INTAKING_FEEDER_VOLTAGE);
     SmartDashboard.putNumber("Intaking intake roller value", INTAKING_INTAKE_VOLTAGE);
@@ -61,41 +53,41 @@ public class CANFuelSubsystem extends SubsystemBase implements CANFuelSubsystemI
   // A method to set the speed of the intake roller with bang-bang control
   public void setLauncherVelocity(AngularVelocity velocity) {
     targetRPM = velocity.in(RotationsPerSecond) * 60;
-    intakeLauncherRoller
-        .setVoltage(bangbang.calculate(intakeLauncherRoller.getEncoder().getVelocity(),
+    launcherMotor
+        .setVoltage(bangbang.calculate(launcherMotor.getEncoder().getVelocity(),
             targetRPM) * RoboRioDataJNI.getVInVoltage() + 0.9 * ff.calculate(targetRPM));
   }
 
   // A method to set the voltage of the intake roller
   public void setLauncherVoltage(Voltage voltage) {
-    intakeLauncherRoller.set(voltage.in(Volts));
+    launcherMotor.set(voltage.in(Volts));
   }
 
   public void setLauncherVoltage(double voltage) {
-    intakeLauncherRoller.set(voltage);
+    launcherMotor.set(voltage);
   }
 
   // A method to set the voltage of the intake roller
   public void setFeederVoltage(Voltage voltage) {
-    feederRoller.set(voltage.in(Volts));
+    feederMotor.set(voltage.in(Volts));
   }
 
   public void setFeederVoltage(double voltage) {
-    feederRoller.set(voltage);
+    feederMotor.set(voltage);
   }
 
   // A method to stop the rollers
   public void stopLauncher() {
-    intakeLauncherRoller.set(0);
+    launcherMotor.set(0);
   }
 
   public void stopFeeder() {
-    feederRoller.set(0);
+    feederMotor.set(0);
   }
 
   @Override
   public void periodic() {
-    actualRPM = intakeLauncherRoller.getEncoder().getVelocity();
+    actualRPM = launcherMotor.getEncoder().getVelocity();
     // This method will be called once per scheduler run
   }
 }
