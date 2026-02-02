@@ -6,11 +6,8 @@ package frc.robot;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static frc.robot.Constants.OperatorConstants.*;
@@ -41,8 +38,12 @@ public class RobotContainer {
 
   private void configureBindings() {
     fuelSubsystem.setDefaultCommand(fuelSubsystem.runOnce(() -> {
-      // fuelSubsystem.setLauncherVelocity(RotationsPerSecond.of(MathUtil.applyDeadband(controller.getLeftY(), .4)* 3000 / 60)); // 3000 RPM
-      fuelSubsystem.setLauncherVoltage(controller.getLeftY() * 0.8);
+      fuelSubsystem
+          .setLauncherVelocity(
+              RotationsPerSecond.of(
+                  MathUtil.applyDeadband(
+                      controller.getLeftY(), 0.2) * 3000 / 60)); // 3000 RPM
+      // fuelSubsystem.setLauncherVoltage(controller.getLeftY() * 0.8);
       fuelSubsystem.setFeederVoltage(MathUtil.applyDeadband(controller.getRightY(), .4) * .75);
     }));
 

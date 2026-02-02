@@ -33,6 +33,7 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
   private double actualRPM = 0;
 
   /** Creates a new CANBallSubsystem. */
+  @SuppressWarnings("removal")
   public FuelSubsystemReal() {
     SparkMaxConfig feederConfig = new SparkMaxConfig();
     feederConfig.smartCurrentLimit(FEEDER_MOTOR_CURRENT_LIMIT);
@@ -52,14 +53,28 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
 
   // A method to set the speed of the intake roller with bang-bang control
   public void setLauncherVelocity(AngularVelocity velocity) {
-    targetRPM = velocity.in(RotationsPerSecond) * 60;
+    this.targetRPM = velocity.in(RotationsPerSecond) * 60;
+    bangbang.setSetpoint(targetRPM);
     launcherMotor
-        .setVoltage(bangbang.calculate(launcherMotor.getEncoder().getVelocity(),
-            targetRPM) * RoboRioDataJNI.getVInVoltage() + 0.9 * ff.calculate(targetRPM));
+        .setVoltage(
+            bangbang.calculate(
+                launcherMotor.getEncoder().getVelocity()) * RoboRioDataJNI.getVInVoltage()
+                + 0.9 * ff.calculate(targetRPM));
+  }
+
+  public void setLauncherVelocity(double RPM) {
+    this.targetRPM = RPM;
+    bangbang.setSetpoint(targetRPM);
+    launcherMotor
+        .setVoltage(
+            bangbang.calculate(
+                launcherMotor.getEncoder().getVelocity()) * RoboRioDataJNI.getVInVoltage()
+                + 0.9 * ff.calculate(targetRPM));
   }
 
   // A method to set the voltage of the intake roller
   public void setLauncherVoltage(Voltage voltage) {
+    targetRPM = 0;
     launcherMotor.set(voltage.in(Volts));
   }
 
@@ -87,7 +102,14 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
 
   @Override
   public void periodic() {
-    actualRPM = launcherMotor.getEncoder().getVelocity();
-    // This method will be called once per scheduler run
+    this.actualRPM = launcherMotor.getEncoder().getVelocity();
+  }
+
+  public double getTargetLauncherRPM() {
+    return targetRPM;
+  }
+
+  public double getActualLauncherRPM() {
+    return actualRPM;
   }
 }

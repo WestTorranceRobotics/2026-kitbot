@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 @Logged
 public class FuelSubsystemSim extends SubsystemBase implements FuelSubsystemIO {
-    private SparkMax motor = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
+    private SparkMax launcherMotor = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
     private SparkMaxSim launcherMotorSim;
     private SparkMaxConfig launcherConfig = new SparkMaxConfig();
 
@@ -33,30 +33,27 @@ public class FuelSubsystemSim extends SubsystemBase implements FuelSubsystemIO {
     private SparkMaxSim feederMotorSim;
 
     private FlywheelSim flywheelSim = new FlywheelSim(
-            LinearSystemId.createFlywheelSystem(DCMotor.getNEO(1), 0.00038228776, 1), DCMotor.getNEO(1));
+            LinearSystemId.createFlywheelSystem(DCMotor.getNEO(1), 0.00062156662, 1), DCMotor.getNEO(1));
 
     private BangBangController bangbang = new BangBangController();
 
+    private double targetRPM = 0;
+    private double actualRPM = 0;
+    
     @Logged
-    private double targetLauncherRPM = 0;
-
-    @Logged
-    private double actualMotorRPM = 0;
-
-    @Logged
-    private double actualFlywheelRPM = 0;
+    private double actualMotorRPM = 0; 
 
     public FuelSubsystemSim() {
-        launcherMotorSim = new SparkMaxSim(motor, DCMotor.getNEO(1));
+        launcherMotorSim = new SparkMaxSim(launcherMotor, DCMotor.getNEO(1));
         launcherConfig.inverted(true);
         launcherConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);
-        motor.configure(launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        launcherMotor.configure(launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         feederMotorSim = new SparkMaxSim(feederMotor, DCMotor.getNEO(1));
     }
 
     @Override
-    public void simulationPeriodic() {
+    public void periodic() {
         // Set input voltage
         flywheelSim.setInput(launcherMotorSim.getAppliedOutput() * RoboRioSim.getVInVoltage());
 
@@ -65,10 +62,10 @@ public class FuelSubsystemSim extends SubsystemBase implements FuelSubsystemIO {
 
         // Update motor
         launcherMotorSim.iterate(
-                launcherMotorSim.getVelocity(), // RPM by default
+                launcherMotor.getEncoder().getVelocity(), // RPM by default
                 RoboRioSim.getVInVoltage(), 0.02);
-        actualMotorRPM = launcherMotorSim.getVelocity();
-        actualFlywheelRPM = flywheelSim.getAngularVelocityRPM();
+        this.actualMotorRPM = launcherMotorSim.getVelocity();
+        this.actualRPM = flywheelSim.getAngularVelocityRPM();
 
         // TODO: might have to move to RobotContainer to sim with every motor?
         RoboRioSim.setVInVoltage(
@@ -76,17 +73,27 @@ public class FuelSubsystemSim extends SubsystemBase implements FuelSubsystemIO {
     }
 
     public void setLauncherVelocity(AngularVelocity targetVelocity) {
-        targetLauncherRPM = targetVelocity.in(RotationsPerSecond) * 60;
-        motor.set(bangbang.calculate(
-                launcherMotorSim.getVelocity(), targetLauncherRPM));
+        this.targetRPM = targetVelocity.in(RotationsPerSecond) * 60;
+
+        bangbang.setSetpoint(targetRPM);
+        launcherMotor.set(bangbang.calculate(
+                launcherMotor.getEncoder().getVelocity()));
+    }
+
+    public void setLauncherVelocity(double RPM) {
+        this.targetRPM = RPM;
+
+        bangbang.setSetpoint(targetRPM);
+        launcherMotor.setVoltage(bangbang.calculate(
+                launcherMotor.getEncoder().getVelocity()) * RoboRioSim.getVInVoltage());
     }
 
     public void setLauncherVoltage(Voltage voltage) {
-        motor.set(voltage.in(Volts));
+        launcherMotor.set(voltage.in(Volts));
     }
 
     public void setLauncherVoltage(double voltage) {
-        motor.set(voltage);
+        launcherMotor.set(voltage);
     }
 
     // A method to set the voltage of the intake roller
@@ -104,5 +111,13 @@ public class FuelSubsystemSim extends SubsystemBase implements FuelSubsystemIO {
 
     public void stopFeeder() {
         feederMotor.set(0);
+    }
+
+    public double getTargetLauncherRPM() {
+        return targetRPM;
+    }
+
+    public double getActualLauncherRPM() {
+        return actualRPM;
     }
 }
