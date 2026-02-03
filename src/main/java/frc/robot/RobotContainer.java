@@ -34,18 +34,24 @@ public class RobotContainer {
     }
 
     configureBindings();
+
+    controller.getA().onTrue(fuelSubsystem.runOnce(() -> {
+      fuelSubsystem.setLauncherVelocity(RotationsPerSecond.of(3000 / 60));
+    })).onFalse(fuelSubsystem.runOnce(() -> {
+      fuelSubsystem.stopLauncher();
+    }));
   }
 
   private void configureBindings() {
-    fuelSubsystem.setDefaultCommand(fuelSubsystem.runOnce(() -> {
-      fuelSubsystem
-          .setLauncherVelocity(
-              RotationsPerSecond.of(
-                  MathUtil.applyDeadband(
-                      controller.getLeftY(), 0.2) * 3000 / 60)); // 3000 RPM
-      // fuelSubsystem.setLauncherVoltage(controller.getLeftY() * 0.8);
-      fuelSubsystem.setFeederVoltage(MathUtil.applyDeadband(controller.getRightY(), .4) * .75);
-    }));
+    // fuelSubsystem.setDefaultCommand(fuelSubsystem.runOnce(() -> {
+    //   fuelSubsystem
+    //       .setLauncherVelocity(
+    //           RotationsPerSecond.of(
+    //               MathUtil.applyDeadband(
+    //                   controller.getLeftY(), 0.2) * 3000 / 60)); // 3000 RPM
+    //   // fuelSubsystem.setLauncherVoltage(controller.getLeftY() * 0.8);
+    //   fuelSubsystem.setFeederVoltage(MathUtil.applyDeadband(controller.getRightY(), .4) * .75);
+    // }));
 
   }
 

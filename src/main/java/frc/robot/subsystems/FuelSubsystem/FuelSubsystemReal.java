@@ -27,7 +27,7 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
   private final SparkMax feederMotor = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushless);
   private final SparkMax launcherMotor = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
   private final BangBangController bangbang = new BangBangController();
-  private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0, 0.00265);
+  private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0, 0.00255);
 
   private double targetRPM = 0;
   private double actualRPM = 0;
@@ -65,7 +65,6 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
                 + 0.9 * feedforward.calculate(targetRPM));
 
     // launcherMotor.setVoltage(feedforward.calculate(targetRPM));
-    feedfowardoutput = feedforward.calculate(targetRPM);
   }
 
   // A method to set the voltage of the intake roller
