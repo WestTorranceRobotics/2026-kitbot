@@ -27,10 +27,13 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
   private final SparkMax feederMotor = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushless);
   private final SparkMax launcherMotor = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
   private final BangBangController bangbang = new BangBangController();
-  private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0, 0);
+  private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0, 0.00265);
 
   private double targetRPM = 0;
   private double actualRPM = 0;
+
+  private double feedfowardoutput = 0;
+
 
   /** Creates a new CANBallSubsystem. */
   @SuppressWarnings("removal")
@@ -59,17 +62,10 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
         .setVoltage(
             bangbang.calculate(
                 launcherMotor.getEncoder().getVelocity()) * RoboRioDataJNI.getVInVoltage()
-                + 0.9 * ff.calculate(targetRPM));
-  }
+                + 0.9 * feedforward.calculate(targetRPM));
 
-  public void setLauncherVelocity(double RPM) {
-    this.targetRPM = RPM;
-    bangbang.setSetpoint(targetRPM);
-    launcherMotor
-        .setVoltage(
-            bangbang.calculate(
-                launcherMotor.getEncoder().getVelocity()) * RoboRioDataJNI.getVInVoltage()
-                + 0.9 * ff.calculate(targetRPM));
+    // launcherMotor.setVoltage(feedforward.calculate(targetRPM));
+    feedfowardoutput = feedforward.calculate(targetRPM);
   }
 
   // A method to set the voltage of the intake roller
@@ -98,6 +94,10 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
 
   public void stopFeeder() {
     feederMotor.set(0);
+  }
+
+  public double feedfowardoutput() {
+    return feedfowardoutput;
   }
 
   @Override

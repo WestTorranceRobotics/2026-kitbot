@@ -9,8 +9,6 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 public interface FuelSubsystemIO extends Subsystem {
     public void setLauncherVelocity(AngularVelocity velocity);
 
-    public void setLauncherVelocity(double RPM);
-
     public void setLauncherVoltage(Voltage voltage);
 
     public void setLauncherVoltage(double voltage);
