@@ -12,7 +12,9 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.hal.simulation.RoboRioDataJNI;
 import edu.wpi.first.math.controller.BangBangController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -27,6 +29,7 @@ public class FuelSubsystemSim extends SubsystemBase implements FuelSubsystemIO {
     private SparkMax launcherMotor = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
     private SparkMaxSim launcherMotorSim;
     private SparkMaxConfig launcherConfig = new SparkMaxConfig();
+    private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0, 0.00255);
 
     private SparkMax feederMotor = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushless);
     // TODO: implement feeder sim in periodic
@@ -72,13 +75,15 @@ public class FuelSubsystemSim extends SubsystemBase implements FuelSubsystemIO {
                 BatterySim.calculateDefaultBatteryLoadedVoltage(flywheelSim.getCurrentDrawAmps()));
     }
 
-    public void setLauncherVelocity(AngularVelocity targetVelocity) {
-        this.targetRPM = targetVelocity.in(RotationsPerSecond) * 60;
-
-        bangbang.setSetpoint(targetRPM);
-        launcherMotor.set(bangbang.calculate(
-                launcherMotor.getEncoder().getVelocity()));
-    }
+  public void setLauncherVelocity(AngularVelocity velocity) {
+    this.targetRPM = velocity.in(RotationsPerSecond) * 60;
+    bangbang.setSetpoint(targetRPM);
+    launcherMotor
+        .setVoltage(
+            bangbang.calculate(
+                launcherMotor.getEncoder().getVelocity()) * RoboRioDataJNI.getVInVoltage()
+                + 0.9 * feedforward.calculate(targetRPM));
+  }
 
     public void setLauncherVelocity(double RPM) {
         this.targetRPM = RPM;
