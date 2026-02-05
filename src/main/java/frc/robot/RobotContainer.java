@@ -35,8 +35,20 @@ public class RobotContainer {
 
     configureBindings();
 
-    controller.getA().onTrue(fuelSubsystem.runOnce(() -> {
+    controller.getX().onTrue(fuelSubsystem.runOnce(() -> {
       fuelSubsystem.setLauncherVelocity(RotationsPerSecond.of(3000 / 60));
+    })).onFalse(fuelSubsystem.runOnce(() -> {
+      fuelSubsystem.stopLauncher();
+    }));
+
+    controller.getA().onTrue(fuelSubsystem.runOnce(() -> {
+      fuelSubsystem.setLauncherVelocity(RotationsPerSecond.of(2000 / 60));
+    })).onFalse(fuelSubsystem.runOnce(() -> {
+      fuelSubsystem.stopLauncher();
+    }));
+
+    controller.getB().onTrue(fuelSubsystem.runOnce(() -> {
+      fuelSubsystem.setLauncherVelocity(RotationsPerSecond.of(1000 / 60));
     })).onFalse(fuelSubsystem.runOnce(() -> {
       fuelSubsystem.stopLauncher();
     }));

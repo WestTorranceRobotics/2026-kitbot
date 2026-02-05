@@ -27,21 +27,18 @@ public class CommandLogitechController {
     }
 
     public Trigger getA() {
-
-
         return new Trigger(() -> controller.getRawButton(1));
-        // return controller.getRawButtonPressed(0) ? 1 : 0;
     }
 
-    public double getB() {
-        return controller.getRawButtonPressed(1) ? 1 : 0;
+    public Trigger getB() {
+        return new Trigger(() -> controller.getRawButton(2));
     }
 
-    public double getY() {
-        return controller.getRawButtonPressed(3) ? 1 : 0;
+    public Trigger getY() {
+        return new Trigger(() -> controller.getRawButton(4));
     }
 
-    public double getX() {
-        return controller.getRawButtonPressed(2) ? 1 : 0;
+    public Trigger getX() {
+        return new Trigger(() -> controller.getRawButton(3));
     }
 }
