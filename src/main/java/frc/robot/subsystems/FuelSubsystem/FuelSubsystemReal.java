@@ -19,6 +19,8 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.CustomUnits;
+
 import static frc.robot.Constants.FuelConstants.*;
 import static edu.wpi.first.units.Units.*;
 
@@ -33,7 +35,6 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
   private double actualRPM = 0;
 
   private double feedfowardoutput = 0;
-
 
   /** Creates a new CANBallSubsystem. */
   @SuppressWarnings("removal")
@@ -56,7 +57,7 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
 
   // A method to set the speed of the intake roller with bang-bang control
   public void setLauncherVelocity(AngularVelocity velocity) {
-    this.targetRPM = velocity.in(RotationsPerSecond) * 60;
+    this.targetRPM = velocity.in(CustomUnits.RotationsPerMinute);
     bangbang.setSetpoint(targetRPM);
     launcherMotor
         .setVoltage(

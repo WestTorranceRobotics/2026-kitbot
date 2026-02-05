@@ -1,13 +1,15 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-public class CommandLogitechController {
+public class CommandLogitechController extends CommandGenericHID  {
     private GenericHID controller;
 
     public CommandLogitechController(int port) {
-        controller = new GenericHID(port);
+        super(port);
+        controller = super.getHID();
     }
 
     public double getLeftX() {
@@ -26,22 +28,19 @@ public class CommandLogitechController {
         return -controller.getRawAxis(5);
     }
 
-    public Trigger getA() {
-
-
+    public Trigger a() {
         return new Trigger(() -> controller.getRawButton(1));
-        // return controller.getRawButtonPressed(0) ? 1 : 0;
     }
 
-    public double getB() {
-        return controller.getRawButtonPressed(1) ? 1 : 0;
+    public Trigger b() {
+        return new Trigger(() -> controller.getRawButton(2));
     }
 
-    public double getY() {
-        return controller.getRawButtonPressed(3) ? 1 : 0;
+    public Trigger y() {
+        return new Trigger(() -> controller.getRawButton(4));
     }
 
-    public double getX() {
-        return controller.getRawButtonPressed(2) ? 1 : 0;
+    public Trigger x() {
+        return new Trigger(() -> controller.getRawButton(3));
     }
 }
