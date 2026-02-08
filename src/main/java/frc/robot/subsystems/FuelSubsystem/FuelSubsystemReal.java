@@ -4,8 +4,8 @@
 
 package frc.robot.subsystems.FuelSubsystem;
 
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -27,7 +27,9 @@ import static edu.wpi.first.units.Units.*;
 @Logged
 public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO {
   private final SparkMax feederMotor = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushless);
-  private final SparkMax launcherMotor = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
+  private final SparkMax launcherMotorLeader = new SparkMax(INTAKE_MOTOR_1_ID, MotorType.kBrushless);
+  private final SparkMax launcherMotorFollower = new SparkMax(INTAKE_MOTOR_2_ID, MotorType.kBrushless);
+
   private final BangBangController bangbang = new BangBangController();
   private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0, 0.00255);
 
@@ -37,16 +39,26 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
   private double feedfowardoutput = 0;
 
   /** Creates a new CANBallSubsystem. */
-  @SuppressWarnings("removal")
   public FuelSubsystemReal() {
     SparkMaxConfig feederConfig = new SparkMaxConfig();
     feederConfig.smartCurrentLimit(FEEDER_MOTOR_CURRENT_LIMIT);
     feederMotor.configure(feederConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    SparkMaxConfig launcherConfig = new SparkMaxConfig();
-    launcherConfig.idleMode(IdleMode.kCoast);
-    launcherConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);
-    launcherMotor.configure(launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    // FIXME: The motor inversions are possibly incorrect and need to be checked.
+    // DON'T RUN THIS CODE WITH BOTH MOTORS PLUGGED IN before you do that
+    SparkMaxConfig launcherLeaderConfig = new SparkMaxConfig();
+    launcherLeaderConfig.idleMode(IdleMode.kCoast);
+    launcherLeaderConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);
+    launcherLeaderConfig.inverted(false);
+    launcherMotorLeader.configure(launcherLeaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    SparkMaxConfig launcherFollowerConfig = new SparkMaxConfig();
+    launcherFollowerConfig.idleMode(IdleMode.kCoast);
+    // launcherFollowerConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);
+    // launcherFollowerConfig.inverted(false);
+    // launcherFollowerConfig.follow(launcherMotorLeader);
+    launcherMotorFollower.configure(launcherFollowerConfig, ResetMode.kResetSafeParameters,
+        PersistMode.kPersistParameters);
 
     SmartDashboard.putNumber("Intaking feeder roller value", INTAKING_FEEDER_VOLTAGE);
     SmartDashboard.putNumber("Intaking intake roller value", INTAKING_INTAKE_VOLTAGE);
@@ -59,10 +71,10 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
   public void setLauncherVelocity(AngularVelocity velocity) {
     this.targetRPM = velocity.in(CustomUnits.RotationsPerMinute);
     bangbang.setSetpoint(targetRPM);
-    launcherMotor
+    launcherMotorLeader
         .setVoltage(
             bangbang.calculate(
-                launcherMotor.getEncoder().getVelocity()) * RoboRioDataJNI.getVInVoltage()
+                launcherMotorLeader.getEncoder().getVelocity()) * RoboRioDataJNI.getVInVoltage()
                 + 0.9 * feedforward.calculate(targetRPM));
 
     // launcherMotor.setVoltage(feedforward.calculate(targetRPM));
@@ -71,11 +83,11 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
   // A method to set the voltage of the intake roller
   public void setLauncherVoltage(Voltage voltage) {
     targetRPM = 0;
-    launcherMotor.set(voltage.in(Volts));
+    launcherMotorLeader.set(voltage.in(Volts));
   }
 
   public void setLauncherVoltage(double voltage) {
-    launcherMotor.set(voltage);
+    launcherMotorLeader.set(voltage);
   }
 
   // A method to set the voltage of the intake roller
@@ -89,7 +101,7 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
 
   // A method to stop the rollers
   public void stopLauncher() {
-    launcherMotor.set(0);
+    launcherMotorLeader.set(0);
   }
 
   public void stopFeeder() {
@@ -102,7 +114,7 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
 
   @Override
   public void periodic() {
-    this.actualRPM = launcherMotor.getEncoder().getVelocity();
+    this.actualRPM = launcherMotorLeader.getEncoder().getVelocity();
   }
 
   public double getTargetLauncherRPM() {

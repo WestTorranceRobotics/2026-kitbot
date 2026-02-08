@@ -26,7 +26,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 @Logged
 public class FuelSubsystemSim extends SubsystemBase implements FuelSubsystemIO {
-    private SparkMax launcherMotor = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
+    private SparkMax launcherMotor = new SparkMax(INTAKE_MOTOR_1_ID, MotorType.kBrushless);
     private SparkMaxSim launcherMotorSim;
     private SparkMaxConfig launcherConfig = new SparkMaxConfig();
     private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0, 0.00255);
