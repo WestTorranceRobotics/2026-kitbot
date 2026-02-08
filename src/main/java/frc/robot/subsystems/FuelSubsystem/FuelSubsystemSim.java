@@ -3,6 +3,7 @@ package frc.robot.subsystems.FuelSubsystem;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.FuelConstants.*;
+import static frc.robot.util.CustomUnits.RotationsPerMinute;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
@@ -76,7 +77,7 @@ public class FuelSubsystemSim extends SubsystemBase implements FuelSubsystemIO {
     }
 
   public void setLauncherVelocity(AngularVelocity velocity) {
-    this.targetRPM = velocity.in(RotationsPerSecond) * 60;
+    this.targetRPM = velocity.in(RotationsPerMinute);
     bangbang.setSetpoint(targetRPM);
     launcherMotor
         .setVoltage(
