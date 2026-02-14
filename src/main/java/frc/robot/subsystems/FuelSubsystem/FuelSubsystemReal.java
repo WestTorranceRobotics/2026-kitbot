@@ -42,6 +42,7 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
   public FuelSubsystemReal() {
     SparkMaxConfig feederConfig = new SparkMaxConfig();
     feederConfig.smartCurrentLimit(FEEDER_MOTOR_CURRENT_LIMIT);
+    feederConfig.inverted(true);
     feederMotor.configure(feederConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // FIXME: The motor inversions are possibly incorrect and need to be checked.
@@ -54,8 +55,8 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
 
     SparkMaxConfig launcherFollowerConfig = new SparkMaxConfig();
     launcherFollowerConfig.idleMode(IdleMode.kCoast);
-    // launcherFollowerConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);
-    // launcherFollowerConfig.inverted(false);
+    launcherFollowerConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);
+    launcherFollowerConfig.inverted(true);
     // launcherFollowerConfig.follow(launcherMotorLeader);
     launcherMotorFollower.configure(launcherFollowerConfig, ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
@@ -71,11 +72,12 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
   public void setLauncherVelocity(AngularVelocity velocity) {
     this.targetRPM = velocity.in(CustomUnits.RotationsPerMinute);
     bangbang.setSetpoint(targetRPM);
-    launcherMotorLeader
-        .setVoltage(
-            bangbang.calculate(
-                launcherMotorLeader.getEncoder().getVelocity()) * RoboRioDataJNI.getVInVoltage()
-                + 0.9 * feedforward.calculate(targetRPM));
+    double voltage = bangbang.calculate(
+        launcherMotorLeader.getEncoder().getVelocity()) * RoboRioDataJNI.getVInVoltage()
+        + 0.9 * feedforward.calculate(targetRPM);
+
+    launcherMotorLeader.setVoltage(voltage);
+    launcherMotorFollower.setVoltage(voltage);
 
     // launcherMotor.setVoltage(feedforward.calculate(targetRPM));
   }
@@ -84,10 +86,12 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
   public void setLauncherVoltage(Voltage voltage) {
     targetRPM = 0;
     launcherMotorLeader.set(voltage.in(Volts));
+    launcherMotorFollower.set(voltage.in(Volts));
   }
 
   public void setLauncherVoltage(double voltage) {
     launcherMotorLeader.set(voltage);
+    launcherMotorFollower.set(voltage);
   }
 
   // A method to set the voltage of the intake roller
@@ -102,6 +106,7 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
   // A method to stop the rollers
   public void stopLauncher() {
     launcherMotorLeader.set(0);
+    launcherMotorFollower.set(0);
   }
 
   public void stopFeeder() {

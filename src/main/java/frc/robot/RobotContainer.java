@@ -36,6 +36,8 @@ public class RobotContainer {
     }
 
     configureBindings();
+
+    fuelSubsystem.setFeederVoltage(.75);
   }
 
   private void configureBindings() {
@@ -46,13 +48,13 @@ public class RobotContainer {
       fuelSubsystem.stopLauncher();
     }));
 
-    controller.a().onTrue(fuelSubsystem.runOnce(() -> {
+    controller.b().onTrue(fuelSubsystem.runOnce(() -> {
       fuelSubsystem.setLauncherVelocity(RotationsPerMinute.of(3000));
     })).onFalse(fuelSubsystem.runOnce(() -> {
       fuelSubsystem.stopLauncher();
     }));
 
-    controller.b().onTrue(fuelSubsystem.runOnce(() -> {
+    controller.a().onTrue(fuelSubsystem.runOnce(() -> {
       fuelSubsystem.setLauncherVelocity(RotationsPerMinute.of(2000));
     })).onFalse(fuelSubsystem.runOnce(() -> {
       fuelSubsystem.stopLauncher();
