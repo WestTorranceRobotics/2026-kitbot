@@ -45,8 +45,6 @@ public class FuelSubsystemReal extends SubsystemBase implements FuelSubsystemIO 
     feederConfig.inverted(true);
     feederMotor.configure(feederConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    // FIXME: The motor inversions are possibly incorrect and need to be checked.
-    // DON'T RUN THIS CODE WITH BOTH MOTORS PLUGGED IN before you do that
     SparkMaxConfig launcherLeaderConfig = new SparkMaxConfig();
     launcherLeaderConfig.idleMode(IdleMode.kCoast);
     launcherLeaderConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);

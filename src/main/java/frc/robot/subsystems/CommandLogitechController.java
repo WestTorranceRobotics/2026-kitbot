@@ -28,6 +28,10 @@ public class CommandLogitechController extends CommandGenericHID  {
         return -controller.getRawAxis(5);
     }
 
+    public double getRightAnalogTrigger() {
+        return controller.getRawAxis(3);
+    }
+
     public Trigger a() {
         return new Trigger(() -> controller.getRawButton(1));
     }
